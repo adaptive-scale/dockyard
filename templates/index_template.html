@@ -152,9 +152,10 @@
         let splitElement = ad.id.split('-')[1];
         console.log(splitElement)
         fetch(ad.id.split('-')[0])
-        window.location.hash = "#"+ad.id
-        // window.history.pushState(null, null, "#"+splitElement);
-
+        window.history.pushState(null, null, "#"+ad.id+"_view");
+        document.getElementById(ad.id+"_view").scrollIntoView({
+            behavior: 'smooth'
+        });
     }
 
     function fetch(id) {
@@ -186,6 +187,12 @@
         let splitElement = window.location.hash.split('-')[0];
         console.log(splitElement)
         fetch(splitElement.replaceAll("#", ""));
+        let id = window.location.hash.replaceAll("#", '');
+        console.log(id);
+        document.getElementById(id).scrollIntoView({
+            behavior: 'smooth'
+        });
+
     } else {
         activate(advent);
     }

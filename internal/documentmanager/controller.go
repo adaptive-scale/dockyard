@@ -104,7 +104,7 @@ func render(location, root string) map[string]map[string]string {
 
 type Content struct {
 	index string
-	submenu []string
+	submenu []*Content
 	id string
 	content string
 }
@@ -144,16 +144,11 @@ func (d *DocumentManager) GetMenu(menuAndContent map[string]string) (string,stri
 			if len(key) >= 2 {
 				for _, c := range contents {
 					if c.index == key[0] {
-						c.submenu = append(c.submenu, strings.Join(key[1:], "_"))
+						c.submenu = append(c.submenu, &Content{id: strings.Join(key[2:], "_"), index:key[1]})
 					}
 				}
 			}
 		}
-	}
-
-
-	for _, content := range contents {
-		log.Println(content.submenu)
 	}
 
 	sort.Slice(contents, func(i, j int) bool { return contents[i].index < contents[j].index })
@@ -166,13 +161,15 @@ func (d *DocumentManager) GetMenu(menuAndContent map[string]string) (string,stri
 			activated = content.id
 		}
 
+		sort.Slice(content.submenu, func(i, j int) bool { return content.submenu[i].index < content.submenu[j].index })
+
 		d, _ := json.Marshal(content.submenu)
 
 		var data string
 
 		if len(content.submenu) > 0 {
 			for _, s := range content.submenu  {
-				data = `<li onclick="onsection(this)" id="` + content.id + `-`+s+`" style="border: 0px; padding: 10px; color: #888; margin-left: 23px; font-size: 14px; border-radius:6px;cursor: pointer;"  class="list list-group-item">`+strings.ReplaceAll(s, "_", " ")+ `</li>`
+				data = data+`<li onclick="onsection(this)" id="` + content.id + `-`+s.id+`" style="border: 0px; padding: 10px; color: #888; margin-left: 23px; font-size: 14px; border-radius:6px;cursor: pointer;"  class="list list-group-item">`+strings.ReplaceAll(s.id, "_", " ")+ `</li>`
 			}
 		}
 		start = start + "'"+content.id+"':{'id':'" + content.id + "', 'content':" + "`" + content.content + "`, 'submenu':"+fmt.Sprintf("%v", string(d))+"},"
