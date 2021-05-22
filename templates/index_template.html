@@ -147,9 +147,24 @@
         }
     }
 
-    function activate(ad){
-        document.getElementById('info').innerHTML = content[ad.id] == null ? "":content[ad.id]
-        if(activated!=null){document.getElementById(activated).classList.remove('active')};document.getElementById(ad.id).classList.add('active'); activated=ad.id;
+    function onsection(ad) {
+
+        let splitElement = ad.id.split('-')[1];
+        console.log(splitElement)
+        fetch(ad.id.split('-')[0])
+        window.location.hash = "#"+ad.id
+        // window.history.pushState(null, null, "#"+splitElement);
+
+    }
+
+    function fetch(id) {
+
+        if(content[id] == null){
+            return
+        }
+
+        document.getElementById('info').innerHTML = content[id].content == null ? "":content[id].content
+        if(activated!=null && document.getElementById(activated) != null){document.getElementById(activated).classList.remove('active')};document.getElementById(id).classList.add('active'); activated=id;
         let inputs = document.getElementsByTagName('table');
         for(var i = 0; i < inputs.length; i++) {
 
@@ -163,7 +178,19 @@
         }
     }
 
-    activate(advent);
+        function activate(ad){
+        fetch(ad.id)
+    }
+
+    if(window.location.hash) {
+
+        let splitElement = window.location.hash.split('-')[0];
+        console.log(splitElement)
+        fetch(splitElement.replaceAll("#", ""));
+    } else {
+        activate(advent);
+    }
+
 
 
 

@@ -1,11 +1,13 @@
 package documentmanager
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/adaptive-scale/dockyard/asset"
 	"github.com/adaptive-scale/dockyard/internal/configuration"
 	"github.com/gomarkdown/markdown"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -102,6 +104,7 @@ func render(location, root string) map[string]map[string]string {
 
 type Content struct {
 	index string
+	submenu []string
 	id string
 	content string
 }
@@ -113,33 +116,68 @@ func (d *DocumentManager) GetMenu(menuAndContent map[string]string) (string,stri
 	end := "}"
 
 
-	var contents []Content
+	var contents []*Content
 	var menu string
 	var activated string
 	for key, value := range menuAndContent {
+		if string(key[0]) == "_" {
+			continue
+		} else {
+			key := strings.Split(key, "_")
 
-		key := strings.Split(key, "_")
+			if len(key) >= 2 {
 
-		if len(key) >= 2 {
+				var content Content
 
-			var content Content
+				content.index = key[0]
+				content.content = value
+				content.id = strings.Join(key[1:], "_")
 
-			content.index = key[0]
-			content.content = value
-			content.id = strings.Join(key[1:], "_")
-
-			contents = append(contents, content)
+				contents = append(contents, &content)
+			}
 		}
+	}
+
+	for key, _ := range menuAndContent {
+		if string(key[0]) == "_" {
+			key := strings.Split(key[1:], "_")
+			if len(key) >= 2 {
+				for _, c := range contents {
+					if c.index == key[0] {
+						c.submenu = append(c.submenu, strings.Join(key[1:], "_"))
+					}
+				}
+			}
+		}
+	}
+
+
+	for _, content := range contents {
+		log.Println(content.submenu)
 	}
 
 	sort.Slice(contents, func(i, j int) bool { return contents[i].index < contents[j].index })
 
+
 	for _, content := range contents {
+		log.Println(content.submenu)
+
 		if activated == "" {
 			activated = content.id
 		}
-		start = start + "'" + content.id + "':" + "`" + content.content + "`,"
-		menu = menu + `<li id="` + content.id + `" style="border: 0px; border-radius:6px;cursor: pointer;" class="list list-group-item" onclick="activate(this);">` + beautify(content.id) + `</li>
+
+		d, _ := json.Marshal(content.submenu)
+
+		var data string
+
+		if len(content.submenu) > 0 {
+			for _, s := range content.submenu  {
+				data = `<li onclick="onsection(this)" id="` + content.id + `-`+s+`" style="border: 0px; padding: 10px; color: #888; margin-left: 23px; font-size: 14px; border-radius:6px;cursor: pointer;"  class="list list-group-item">`+strings.ReplaceAll(s, "_", " ")+ `</li>`
+			}
+		}
+		start = start + "'"+content.id+"':{'id':'" + content.id + "', 'content':" + "`" + content.content + "`, 'submenu':"+fmt.Sprintf("%v", string(d))+"},"
+		menu = menu + `<li id="` + content.id + `" style="border: 0px; border-radius:6px;cursor: pointer;" class="list list-group-item" onclick="activate(this);">` + beautify(content.id) + data+ `
+</li>
 `
 	}
 

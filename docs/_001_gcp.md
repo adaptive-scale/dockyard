@@ -40,10 +40,12 @@ When it comes to generating and managing static websites, following are the poss
 | Hugo          |  yes          | No            | Yes    | Heroku, render, netlify etc.     | Golang   | Big orgs, Saas providers                 |
 | Gatsby        |  yes          | Yes           | Yes    | Heroku, render,  netlify etc.    | JS, React|  Big orgs, Saas providers               |
 
+
 Dockyard fits perfectly for sharing documentation. Whether it is sharing with your customers or within you team. 
 The endgoal is to build a packing standard for sharing project/product documentation with vendors, customers, users etc,
 possibly embedded with the project/product.
 Prerequisites for using dockyard is markdown's understanding and some hacks described in [Quickstart](#quickstart) and [Detailed Overview](#detailed_overview).
+
 You can master markdown if you follow [this](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet).
 
 
